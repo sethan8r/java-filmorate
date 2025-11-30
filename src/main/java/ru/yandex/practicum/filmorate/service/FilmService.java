@@ -14,7 +14,7 @@ import java.util.List;
 @Slf4j
 public class FilmService {
 
-    HashMap<Long, Film> films =  new HashMap<>();
+    HashMap<Long, Film> films = new HashMap<>();
 
     private Long id = 1L;
 
@@ -54,15 +54,15 @@ public class FilmService {
             throw new ValidationException("Название фильма не может быть пустым");
         }
 
-        if(film.getDescription().length() > 200) {
+        if (film.getDescription().length() > 200) {
             throw new ValidationException("Максимальная длина описания — 200 символов");
         }
 
-        if(film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             throw new ValidationException("Дата релиза должна быть не раньше 28 декабря 1895 года");
         }
 
-        if(film.getDuration() <= 0) {
+        if (film.getDuration() <= 0) {
             throw new ValidationException("Продолжительность фильма должна быть положительным числом");
         }
     }

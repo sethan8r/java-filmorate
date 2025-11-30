@@ -14,7 +14,7 @@ import java.util.List;
 @Slf4j
 public class UserService {
 
-    HashMap<Long, User> users =  new HashMap<>();
+    HashMap<Long, User> users = new HashMap<>();
 
     private Long id = 1L;
 
@@ -55,15 +55,15 @@ public class UserService {
     }
 
     private void validate(User user) {
-        if(user.getEmail() == null || user.getEmail().isEmpty() || !user.getEmail().contains("@")) {
+        if (user.getEmail() == null || user.getEmail().isEmpty() || !user.getEmail().contains("@")) {
             throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");
         }
 
-        if(user.getLogin() == null || user.getLogin().isEmpty() || user.getLogin().contains(" ")) {
+        if (user.getLogin() == null || user.getLogin().isEmpty() || user.getLogin().contains(" ")) {
             throw new ValidationException("Логин не может быть пустым и содержать пробелы");
         }
 
-        if(user.getBirthday().isAfter(LocalDate.now())) {
+        if (user.getBirthday().isAfter(LocalDate.now())) {
             throw new ValidationException("Дата рождения не может быть в будущем");
         }
     }
