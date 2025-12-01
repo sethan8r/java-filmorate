@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Throwable.class)
-    public ResponseEntity<ErrorResponse> handleThrowable(MethodArgumentNotValidException e) {
+    public ResponseEntity<ErrorResponse> handleThrowable(Throwable e) {
         log.error("Непредвиденная ошибка {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 new ErrorResponse(e.getMessage()));
