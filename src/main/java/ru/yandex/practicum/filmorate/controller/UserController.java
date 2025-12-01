@@ -19,19 +19,16 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody @Valid User user) {
-
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(user));
     }
 
     @PutMapping
     public User updateUser(@RequestBody @Valid User user) {
-
         return userService.updateUser(user);
     }
 
     @GetMapping
     public List<User> getUsers() {
-
         return userService.getUsers();
     }
 }

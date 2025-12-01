@@ -19,19 +19,16 @@ public class FilmController {
 
     @PostMapping
     public ResponseEntity<Film> createFilm(@RequestBody @Valid Film film) {
-
         return ResponseEntity.status(HttpStatus.CREATED).body(filmService.createFilm(film));
     }
 
     @PutMapping
     public Film updateFilm(@RequestBody @Valid Film film) {
-
         return filmService.updateFilm(film);
     }
 
     @GetMapping
     public List<Film> getAllFilms() {
-
         return filmService.getAllFilms();
     }
 }
