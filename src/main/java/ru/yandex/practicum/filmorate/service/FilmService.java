@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceprion.AlreadyExistsException;
 import ru.yandex.practicum.filmorate.exceprion.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.Comparator;
 import java.util.List;
@@ -17,30 +17,30 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FilmService {
 
-    private final InMemoryFilmStorage inMemoryFilmStorage;
+    private final FilmStorage filmStorage;
 
     public Film createFilm(Film film) {
         log.info("Создание фильма с name \"{}\"", film.getName());
 
-        return inMemoryFilmStorage.createFilm(film);
+        return filmStorage.createFilm(film);
     }
 
     public Film updateFilm(Film film) {
         log.info("Изменение фильма с id \"{}\"", film.getId());
 
-        return inMemoryFilmStorage.updateFilm(film);
+        return filmStorage.updateFilm(film);
     }
 
     public List<Film> getAllFilms() {
         log.info("Отображение списка фильмов");
 
-        return inMemoryFilmStorage.getAllFilms();
+        return filmStorage.getAllFilms();
     }
 
     public void addLike(Long filmId, Long userId) {
         log.info("Добавление лайка фильму с id={} пользователем с id={}", filmId, userId);
 
-        var film = inMemoryFilmStorage.getFilmById(filmId);
+        var film = filmStorage.getFilmById(filmId);
 
         if (film.getLikes().contains(userId)) {
             throw new AlreadyExistsException("Лайк уже поставлен на фильм с id=" + filmId);
@@ -52,7 +52,7 @@ public class FilmService {
     public void removeLike(Long filmId, Long userId) {
         log.info("Удаление лайка пользователем с id={} с фильма с id={}", userId, filmId);
 
-        var film = inMemoryFilmStorage.getFilmById(filmId);
+        var film = filmStorage.getFilmById(filmId);
 
         if (!film.getLikes().contains(userId)) {
             throw new NotFoundException("Не найден лайк на фильме с id=" + filmId);
@@ -64,7 +64,7 @@ public class FilmService {
     public List<Film> getPopularFilms(Integer count) {
         log.info("Отображение списка из {} популярных фильмов", count);
 
-        return inMemoryFilmStorage.getAllFilms().stream()
+        return filmStorage.getAllFilms().stream()
                 .sorted(Comparator.comparingInt((Film film) ->
                         film.getLikes() != null ? film.getLikes().size() : 0).reversed())
                 .limit(count)
