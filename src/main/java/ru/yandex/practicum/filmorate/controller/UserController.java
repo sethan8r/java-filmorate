@@ -31,4 +31,28 @@ public class UserController {
     public List<User> getUsers() {
         return userService.getUsers();
     }
+
+    @PutMapping("/{id}/friends/{friendId}") //как будто лучше PATCH
+    public ResponseEntity<Void> addFriends(@PathVariable Long id, @PathVariable Long friendId) {
+        userService.addFriends(id, friendId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public ResponseEntity<Void> removeFriends(@PathVariable Long id, @PathVariable Long friendId) {
+        userService.removeFriends(id, friendId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> getFriends(@PathVariable Long id) {
+        return userService.getFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+        return userService.getCommonFriends(id, otherId);
+    }
 }

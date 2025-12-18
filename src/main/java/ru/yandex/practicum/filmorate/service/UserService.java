@@ -1,70 +1,93 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceprion.ValidationException;
+import ru.yandex.practicum.filmorate.exceprion.AlreadyExistsException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UserService {
 
-    HashMap<Long, User> users = new HashMap<>();
-
-    private Long id = 1L;
+    private final UserStorage userStorage;
 
     public User createUser(User user) {
         log.info("Создание пользователя с login \"{}\"", user.getLogin());
-
-        validate(user);
-
-        user.setId(nextId());
 
         if (user.getName() == null || user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
 
-        users.put(user.getId(), user);
-
-        return user;
+        return userStorage.createUser(user);
     }
 
     public User updateUser(User user) {
         log.info("Изменение пользователя с id \"{}\"", user.getId());
 
-        validate(user);
-
-        users.put(user.getId(), user);
-
-        return user;
+        return userStorage.updateUser(user);
     }
 
     public List<User> getUsers() {
         log.info("Отображение всех пользователей");
 
-        return new ArrayList<>(users.values());
+        return userStorage.getUsers();
     }
 
-    private Long nextId() {
-        return id++;
+    public void addFriends(Long userId, Long friendId) {
+        log.info("Добавление пользователем с id={} в друзья пользователя с id={}", userId, friendId);
+
+        var user = userStorage.getUserById(userId);
+        var friend = userStorage.getUserById(friendId);
+
+        if (user.getFriends().contains(friendId) || friend.getFriends().contains(userId)) {
+            throw new AlreadyExistsException("Пользователи c id=" + friendId + " и id=" + friendId + " уже в друзьях");
+        }
+
+        user.getFriends().add(friendId);
+        friend.getFriends().add(userId);
     }
 
-    private void validate(User user) {
-        if (user.getEmail() == null || user.getEmail().isEmpty() || !user.getEmail().contains("@")) {
-            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");
+    public void removeFriends(Long userId, Long friendId) {
+        log.info("Удаление пользователем с id={} из друзей пользователя с id={}", userId, friendId);
+
+        var user = userStorage.getUserById(userId);
+        var friend = userStorage.getUserById(friendId);
+
+        if (!user.getFriends().contains(friendId) || !friend.getFriends().contains(userId)) {
+            throw new AlreadyExistsException("Пользователи c id=" + friendId + " и id=" + friendId + " не в друзьях");
         }
 
-        if (user.getLogin() == null || user.getLogin().isEmpty() || user.getLogin().contains(" ")) {
-            throw new ValidationException("Логин не может быть пустым и содержать пробелы");
-        }
+        user.getFriends().remove(friendId);
+        friend.getFriends().remove(userId);
+    }
 
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("Дата рождения не может быть в будущем");
-        }
+    public List<User> getFriends(Long userId) {
+        log.info("Отображение списка друзей пользователя с id={}", userId);
+
+        return userStorage.getUserById(userId).getFriends().stream()
+                .map(userStorage::getUserById)
+                .collect(Collectors.toList());
+    }
+
+    public List<User> getCommonFriends(Long userId, Long friendId) {
+        log.info("Получение общих друзей пользователей с id={} и id={}", userId, friendId);
+
+        var user = userStorage.getUserById(userId);
+        var friend = userStorage.getUserById(friendId);
+
+        Set<Long> commonFriendIds = new HashSet<>(user.getFriends());
+        commonFriendIds.retainAll(friend.getFriends());
+
+        return commonFriendIds.stream()
+                .map(userStorage::getUserById)
+                .collect(Collectors.toList());
     }
 }
