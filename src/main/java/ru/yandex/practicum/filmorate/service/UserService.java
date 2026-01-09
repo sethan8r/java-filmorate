@@ -3,14 +3,11 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceprion.AlreadyExistsException;
+import ru.yandex.practicum.filmorate.dto.UserRequestDto;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -19,75 +16,75 @@ public class UserService {
 
     private final UserStorage userStorage;
 
-    public User createUser(User user) {
-        log.info("Создание пользователя с login \"{}\"", user.getLogin());
+    public User createUser(UserRequestDto request) {
+        log.info("Создание пользователя с login \"{}\"", request.login());
 
-        if (user.getName() == null || user.getName().isEmpty()) {
-            user.setName(user.getLogin());
-        }
+        User user = new User();
+        user.setEmail(request.email());
+        user.setLogin(request.login());
+        user.setName(request.name() != null && !request.name().isEmpty() ? request.name() : request.login());
+        user.setBirthday(request.birthday());
 
         return userStorage.createUser(user);
     }
 
-    public User updateUser(User user) {
-        log.info("Изменение пользователя с id \"{}\"", user.getId());
+    public User updateUser(Long userId, UserRequestDto request) {
+        log.info("Изменение пользователя с id \"{}\"", userId);
+
+        User user = new User();
+        user.setId(userId);
+        user.setEmail(request.email());
+        user.setLogin(request.login());
+        user.setName(request.name() != null && !request.name().isEmpty() ? request.name() : request.login());
+        user.setBirthday(request.birthday());
 
         return userStorage.updateUser(user);
     }
 
     public List<User> getUsers() {
-        log.info("Отображение всех пользователей");
-
+        log.info("Получение всех пользователей");
         return userStorage.getUsers();
     }
 
+    public User getUserById(Long userId) {
+        log.info("Получение пользователя с id={}", userId);
+        return userStorage.getUserById(userId);
+    }
+
     public void addFriends(Long userId, Long friendId) {
-        log.info("Добавление пользователем с id={} в друзья пользователя с id={}", userId, friendId);
+        log.info("Отправка заявки в друзья от пользователя с id={} к id={}", userId, friendId);
+        userStorage.getUserById(userId);
+        userStorage.getUserById(friendId);
+        userStorage.addFriends(userId, friendId);
+    }
 
-        var user = userStorage.getUserById(userId);
-        var friend = userStorage.getUserById(friendId);
+    public void confirmFriends(Long userId, Long friendId) {
+        log.info("Принятие заявки в друзья от пользователя с id={} для id={}", friendId, userId);
+        userStorage.confirmFriends(userId, friendId);
+    }
 
-        if (user.getFriends().contains(friendId) || friend.getFriends().contains(userId)) {
-            throw new AlreadyExistsException("Пользователи c id=" + friendId + " и id=" + friendId + " уже в друзьях");
-        }
-
-        user.getFriends().add(friendId);
-        friend.getFriends().add(userId);
+    public void rejectFriends(Long userId, Long friendId) {
+        log.info("Отклонение заявки в друзья от пользователя с id={} для id {}", friendId, userId);
+        userStorage.rejectFriends(userId, friendId);
     }
 
     public void removeFriends(Long userId, Long friendId) {
-        log.info("Удаление пользователем с id={} из друзей пользователя с id={}", userId, friendId);
-
-        var user = userStorage.getUserById(userId);
-        var friend = userStorage.getUserById(friendId);
-
-        if (!user.getFriends().contains(friendId) || !friend.getFriends().contains(userId)) {
-            throw new AlreadyExistsException("Пользователи c id=" + friendId + " и id=" + friendId + " не в друзьях");
-        }
-
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(userId);
+        log.info("Удаление из друзей пользователя с id={} пользователем с id={}", friendId, userId);
+        userStorage.removeFriends(userId, friendId);
     }
 
     public List<User> getFriends(Long userId) {
-        log.info("Отображение списка друзей пользователя с id={}", userId);
-
-        return userStorage.getUserById(userId).getFriends().stream()
-                .map(userStorage::getUserById)
-                .collect(Collectors.toList());
+        log.info("Получение друзей пользователя с id={}", userId);
+        return userStorage.getFriends(userId);
     }
 
     public List<User> getCommonFriends(Long userId, Long friendId) {
-        log.info("Получение общих друзей пользователей с id={} и id={}", userId, friendId);
+        log.info("Получение общих друзей пользователя с id={} и id={}", userId, friendId);
+        return userStorage.getCommonFriends(userId, friendId);
+    }
 
-        var user = userStorage.getUserById(userId);
-        var friend = userStorage.getUserById(friendId);
-
-        Set<Long> commonFriendIds = new HashSet<>(user.getFriends());
-        commonFriendIds.retainAll(friend.getFriends());
-
-        return commonFriendIds.stream()
-                .map(userStorage::getUserById)
-                .collect(Collectors.toList());
+    public List<User> getFriendRequests(Long userId) {
+        log.info("Получение входящих заявок в друзья для пользователя с id={}", userId);
+        return userStorage.getFriendRequests(userId);
     }
 }
