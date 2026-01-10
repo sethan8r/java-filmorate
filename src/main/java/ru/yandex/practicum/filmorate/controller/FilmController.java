@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.dto.FilmRequestDto;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -18,13 +19,19 @@ public class FilmController {
     private final FilmService filmService;
 
     @PostMapping
-    public ResponseEntity<Film> createFilm(@RequestBody @Valid Film film) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(filmService.createFilm(film));
+    public ResponseEntity<Film> createFilm(@RequestBody @Valid FilmRequestDto request) {
+        Film film = filmService.createFilm(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(film);
     }
 
-    @PutMapping
-    public Film updateFilm(@RequestBody @Valid Film film) {
-        return filmService.updateFilm(film);
+    @PutMapping("/{filmId}")
+    public Film updateFilm(@PathVariable Long filmId, @RequestBody @Valid FilmRequestDto request) {
+        return filmService.updateFilm(filmId, request);
+    }
+
+    @GetMapping("/{filmId}")
+    public Film getFilmById(@PathVariable Long filmId) {
+        return filmService.getFilmById(filmId);
     }
 
     @GetMapping

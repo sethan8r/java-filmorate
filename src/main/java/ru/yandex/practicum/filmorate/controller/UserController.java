@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.dto.UserRequestDto;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -18,13 +19,14 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody @Valid User user) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(user));
+    public ResponseEntity<User> createUser(@RequestBody @Valid UserRequestDto request) {
+        User user = userService.createUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
-    @PutMapping
-    public User updateUser(@RequestBody @Valid User user) {
-        return userService.updateUser(user);
+    @PutMapping("/{userId}")
+    public User updateUser(@PathVariable Long userId, @RequestBody @Valid UserRequestDto request) {
+        return userService.updateUser(userId, request);
     }
 
     @GetMapping
@@ -32,27 +34,47 @@ public class UserController {
         return userService.getUsers();
     }
 
-    @PutMapping("/{id}/friends/{friendId}") //как будто лучше PATCH
-    public ResponseEntity<Void> addFriends(@PathVariable Long id, @PathVariable Long friendId) {
-        userService.addFriends(id, friendId);
+    @GetMapping("/{userId}")
+    public User getUserById(@PathVariable Long userId) {
+        return userService.getUserById(userId);
+    }
 
+    @PutMapping("/{userId}/friends/{friendId}")
+    public ResponseEntity<Void> addFriends(@PathVariable Long userId, @PathVariable Long friendId) {
+        userService.addFriends(userId, friendId);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{id}/friends/{friendId}")
-    public ResponseEntity<Void> removeFriends(@PathVariable Long id, @PathVariable Long friendId) {
-        userService.removeFriends(id, friendId);
-
+    @PutMapping("/{userId}/friends/{friendId}/confirm")
+    public ResponseEntity<Void> confirmFriends(@PathVariable Long userId, @PathVariable Long friendId) {
+        userService.confirmFriends(userId, friendId);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}/friends")
-    public List<User> getFriends(@PathVariable Long id) {
-        return userService.getFriends(id);
+    @PutMapping("/{userId}/friends/{friendId}/reject")
+    public ResponseEntity<Void> rejectFriends(@PathVariable Long userId, @PathVariable Long friendId) {
+        userService.rejectFriends(userId, friendId);
+        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
-        return userService.getCommonFriends(id, otherId);
+    @DeleteMapping("/{userId}/friends/{friendId}")
+    public ResponseEntity<Void> removeFriends(@PathVariable Long userId, @PathVariable Long friendId) {
+        userService.removeFriends(userId, friendId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{userId}/friends")
+    public List<User> getFriends(@PathVariable Long userId) {
+        return userService.getFriends(userId);
+    }
+
+    @GetMapping("/{userId}/friends/common/{friendId}")
+    public List<User> getCommonFriends(@PathVariable Long userId, @PathVariable Long friendId) {
+        return userService.getCommonFriends(userId, friendId);
+    }
+
+    @GetMapping("/{userId}/friends/requests")
+    public List<User> getFriendRequests(@PathVariable Long userId) {
+        return userService.getFriendRequests(userId);
     }
 }
