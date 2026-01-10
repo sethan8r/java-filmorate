@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.storage.agerating;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exceprion.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.AgeRating;
 import ru.yandex.practicum.filmorate.storage.BaseRepository;
 
@@ -14,7 +14,7 @@ public class AgeRatingDbStorage extends BaseRepository<AgeRating> implements Age
 
     private static final String FIND_ALL_QUERY = "SELECT * FROM age_ratings ORDER BY id";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM age_ratings WHERE id = ?";
-    private static final String INSERT_QUERY = "INSERT INTO age_ratings(name) VALUES (?) RETURNING id";
+    private static final String INSERT_QUERY = "INSERT INTO age_ratings(name) VALUES (?)";
     private static final String UPDATE_QUERY = "UPDATE age_ratings SET name = ? WHERE id = ?";
     private static final String DELETE_QUERY = "DELETE FROM age_ratings WHERE id = ?";
 

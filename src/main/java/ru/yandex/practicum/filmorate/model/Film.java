@@ -20,6 +20,4 @@ public class Film {
     private Integer duration;
 
     private AgeRating ageRating;
-
-//    private Set<Long> likes = new HashSet<>();
 }

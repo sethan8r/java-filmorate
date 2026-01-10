@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.storage.user;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exceprion.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.BaseRepository;
 
@@ -12,8 +12,8 @@ import java.util.List;
 @Repository
 public class UserDbStorage extends BaseRepository<User> implements UserStorage {
 
-    private static final String INSERT_QUERY = "INSERT INTO users(email, login, name, birthday)" +
-            "VALUES (?, ?, ?, ?) returning id";
+    private static final String INSERT_QUERY =
+            "INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?)";
     private static final String EXISTS_QUERY = "SELECT EXISTS(SELECT 1 FROM users WHERE id = ?)";
     private static final String UPDATE_QUERY = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? " +
             "WHERE id = ?";

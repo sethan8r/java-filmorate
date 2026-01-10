@@ -32,10 +32,4 @@ public class User {
     @NotNull
     @PastOrPresent
     private LocalDate birthday;
-//
-//    private Set<Long> friends = new HashSet<>();
-//
-//    private List<Long> sentFriendRequests  = new ArrayList<>();; //я отправил //связь с user
-//
-//    private List<Long> receivedFriendRequests  = new ArrayList<>();; //мне отправили //связь с user
 }

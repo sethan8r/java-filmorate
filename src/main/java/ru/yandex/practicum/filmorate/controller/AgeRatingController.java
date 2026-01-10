@@ -25,21 +25,4 @@ public class AgeRatingController {
     public AgeRating getAgeRatingById(@PathVariable Long id) {
         return ageRatingService.getAgeRatingById(id);
     }
-
-    @PostMapping
-    public ResponseEntity<AgeRating> createAgeRating(@RequestBody AgeRating ageRating) {
-        AgeRating created = ageRatingService.createAgeRating(ageRating);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
-    }
-
-    @PutMapping("/{id}")
-    public AgeRating updateAgeRating(@PathVariable Long id, @RequestBody AgeRating ageRating) {
-        return ageRatingService.updateAgeRating(id, ageRating);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAgeRating(@PathVariable Long id) {
-        ageRatingService.deleteAgeRating(id);
-        return ResponseEntity.noContent().build();
-    }
 }
